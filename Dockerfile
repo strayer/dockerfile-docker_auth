@@ -1,7 +1,7 @@
-FROM golang:1.21-alpine3.19 as build
+FROM golang:1.24-alpine3.22 as build
 
-ARG DOCKER_AUTH_VER 1.12.0
-ARG DOCKER_AUTH_REF 6d81420dab2741213bd6e61936ba91a80c439679
+ARG DOCKER_AUTH_VER 1.14.0
+ARG DOCKER_AUTH_REF d3f46f7998ec6ce0abc4c235a35449c58d240f73
 
 ARG VERSION
 ENV VERSION "${VERSION}"
@@ -17,15 +17,15 @@ WORKDIR /src
 
 # hadolint ignore=DL3003
 RUN git clone https://github.com/cesanta/docker_auth.git \
-    && cd docker_auth \
-    && git checkout ${DOCKER_AUTH_REF} \
-    && mv auth_server /build
+  && cd docker_auth \
+  && git checkout ${DOCKER_AUTH_REF} \
+  && mv auth_server /build
 
 WORKDIR /build
 
 RUN make build
 
-FROM alpine:3.19 as runtime
+FROM alpine:3.22 as runtime
 
 COPY --from=build /build/auth_server /docker_auth/
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
